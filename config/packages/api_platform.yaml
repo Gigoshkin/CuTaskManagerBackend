@@ -1,0 +1,17 @@
+api_platform:
+    defaults:
+        stateless: true
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin']
+
+    title: "CuTaskManager"
+    description: "This is an API documentation for the first Cu Programming Club Hackathon."
+    version: '1.0.0'
+    enable_swagger_ui: false
+    enable_re_doc: false
+
+    swagger:
+        api_keys:
+            JWT:
+                name: Authorization
+                type: header
