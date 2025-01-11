@@ -2,6 +2,7 @@
 services:
 ###> doctrine/doctrine-bundle ###
   database:
+    restart: always
     image: postgres:${POSTGRES_VERSION:-16}-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-app}
@@ -13,13 +14,53 @@ services:
       timeout: 5s
       retries: 5
       start_period: 60s
+    ports:
+      - "5432:5432"
     volumes:
       - database_data:/var/lib/postgresql/data:rw
       # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       # - ./docker/db/data:/var/lib/postgresql/data:rw
 ###< doctrine/doctrine-bundle ###
 
+  nginx:
+    build:
+      context: .
+      target: app_nginx
+    restart: always
+    environment:
+      APP_ENV: dev
+      PHP_DATE_TIMEZONE: Asia/Tbilisi
+    depends_on:
+      - php
+    ports:
+      - "80:80"
+    volumes:
+      - ./public:/var/www/app/public:ro
+
+  php:
+    build:
+      context: .
+      target: app_php
+    restart: always
+    environment:
+      APP_ENV: dev
+      PHP_DATE_TIMEZONE: Asia/Tbilisi
+#      XDEBUG_CONFIG: remote_host=host.docker.internal
+#      PHP_IDE_CONFIG: serverName=localhost
+    depends_on:
+      - database
+    ports:
+      - "9000:9000"
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+    volumes:
+      - .:/var/www/app:rw,cached
+      - var:/var/www/app/var
+
+
+
 volumes:
 ###> doctrine/doctrine-bundle ###
   database_data:
 ###< doctrine/doctrine-bundle ###
+  var:
