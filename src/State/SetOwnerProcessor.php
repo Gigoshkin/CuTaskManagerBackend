@@ -26,7 +26,7 @@ readonly class SetOwnerProcessor implements ProcessorInterface
             return $this->removeProcessor->process($data, $operation, $uriVariables, $context);
         }
 
-        $data->setAuthor($this->security->getUser());
+        $data->setOwner($this->security->getUser());
         return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
     }
 

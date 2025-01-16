@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\UserRepository;
 use App\State\ChangePasswordProcessor;
+use App\State\CurrentUserProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -22,7 +23,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
-#[ApiResource]
+#[ApiResource(
+    provider: CurrentUserProvider::class,
+)]
 #[Post(
     uriTemplate: '/register',
     normalizationContext: ['groups' => ['register-read']],
@@ -30,7 +33,8 @@ use Symfony\Component\Validator\Constraints as Assert;
     processor: ChangePasswordProcessor::class,
 )]
 #[Patch(
-    uriTemplate: '/change-password',
+    uriTemplate: '/change-password/{email}',
+    uriVariables: ['email'],
     normalizationContext: ['groups' => ['change-password-read']],
     denormalizationContext: ['groups' => ['change-password-write']],
     security: "is_granted('ROLE_USER')",
@@ -62,11 +66,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[Groups(['register-write', 'change-password-write'])]
-    #[Assert\NotBlank]
     #[Assert\Length(min: 6, max: 32)]
     #[SerializedName('password')]
     #[ApiProperty(readable: false)]
-    private ?string $plainPassword = null;
+    private ?string $apiPlainPassword = null;
 
     /**
      * @var Collection<int, Task>
@@ -77,6 +80,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->tasks = new ArrayCollection();
+    }
+
+    public function __toString(): string
+    {
+        return $this->email;
     }
 
     public function getId(): ?int
@@ -150,7 +158,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function eraseCredentials(): void
     {
-        $this->plainPassword = null;
+        $this->apiPlainPassword = null;
     }
 
     /**
@@ -165,7 +173,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->tasks->contains($task)) {
             $this->tasks->add($task);
-            $task->setOnwer($this);
+            $task->setOwner($this);
         }
 
         return $this;
@@ -176,22 +184,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->tasks->removeElement($task)) {
             // set the owning side to null (unless already changed)
             if ($task->getOwner() === $this) {
-                $task->setOnwer(null);
+                $task->setOwner(null);
             }
         }
 
         return $this;
     }
 
-    public function getPlainPassword(): ?string
+    public function getApiPlainPassword(): ?string
     {
-        return $this->plainPassword;
+        return $this->apiPlainPassword;
     }
 
-    public function setPlainPassword(string $plainPassword): static
+    public function setApiPlainPassword(?string $apiPlainPassword): void
     {
-        $this->plainPassword = $plainPassword;
-
-        return $this;
+        $this->apiPlainPassword = $apiPlainPassword;
     }
+
 }

@@ -15,3 +15,21 @@ passthru(sprintf(
     $_ENV['APP_ENV'],
     __DIR__
 ));
+
+passthru(sprintf(
+    'APP_ENV=%s php "%s/../bin/console" doctrine:database:drop --force',
+    $_ENV['APP_ENV'],
+    __DIR__
+));
+
+passthru(sprintf(
+    'APP_ENV=%s php "%s/../bin/console" doctrine:database:create',
+    $_ENV['APP_ENV'],
+    __DIR__
+));
+
+passthru(sprintf(
+    'APP_ENV=%s php "%s/../bin/console" doctrine:schema:create',
+    $_ENV['APP_ENV'],
+    __DIR__
+));

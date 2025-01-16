@@ -22,8 +22,22 @@ readonly class ChangePasswordProcessor implements ProcessorInterface
 
     public function process( $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
+
+//        if (!$data->getPlainPassword()) {
+//            return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
+//        }
+//
+//        $hashedPassword = $this->userPasswordHasher->hashPassword(
+//            $data,
+//            $data->getApi()
+//        );
+//        $data->setPassword($hashedPassword);
+//        $data->eraseCredentials();
+//
+//        return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
+
         /* @var User $data */
-        $data->setPassword($this->userPasswordHasher->hashPassword($data, $data->getPlainPassword()));
+        $data->setPassword($this->userPasswordHasher->hashPassword($data, $data->getApiPlainPassword()));
         return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
     }
 

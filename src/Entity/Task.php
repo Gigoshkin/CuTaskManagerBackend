@@ -13,6 +13,7 @@ use App\Repository\TaskRepository;
 use App\State\SetOwnerProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
 #[ApiResource(
@@ -27,9 +28,11 @@ class Task
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $nameEnglish = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $nameGeorgian = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -39,12 +42,19 @@ class Task
     private ?string $descriptionGeorgian = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
     private ?\DateTimeImmutable $expiresAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'tasks')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\Type(User::class)]
     #[ApiProperty(readable: false, writable: false)]
     private ?User $owner = null;
+
+    public function __toString(): string
+    {
+        return $this->nameEnglish;
+    }
 
     public function getId(): ?int
     {
@@ -116,7 +126,7 @@ class Task
         return $this->owner;
     }
 
-    public function setOnwer(?User $owner): static
+    public function setOwner(?User $owner): static
     {
         $this->owner = $owner;
 
