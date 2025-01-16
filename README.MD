@@ -14,6 +14,7 @@ Requirements:
   - PHP >= 8.2 with postgres
   - Docker
   - Make
+  - composer
 - For production
   - Docker
 
