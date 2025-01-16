@@ -1,5 +1,7 @@
 FROM php:8.4-fpm-alpine AS app_php
 
+ENV APP_ENV=prod
+
 RUN apk update
 
 RUN apk add --update --virtual procps autoconf g++ make libpq-dev icu-dev libzip-dev git openssh-client openssl nano \

@@ -2,8 +2,6 @@
 
 namespace Api;
 
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
-use App\Entity\User;
 use App\Tests\Api\AbstractTest;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
